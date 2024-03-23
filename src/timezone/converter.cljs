@@ -8,6 +8,10 @@
 
 (def log (.-log js/console))
 
+(defn- pad-zero [n]
+  (let [s (str n)]
+    (if (= 2 (count s)) s (str "0" s))))
+
 (defn convert-timezone [time-str from-tz to-tz]
   (let [time-parts (str/split time-str #":")
         hour (int (first time-parts))
@@ -17,9 +21,10 @@
         from-datetime (joda/ZonedDateTime.of 2000 1 1 hour minute second 0 (joda/ZoneId.of from-tz))
         ;; converted (formatInTimeZone date "America/New_York" "yyyy-MM-dd HH:mm:ss zzz")
         to-datetime (.withZoneSameInstant from-datetime (joda/ZoneId.of to-tz))
-        ]
-    (log hour minute second from-datetime to-datetime from-tz to-tz)
-    (str to-datetime)))
+        to-hour (.hour to-datetime)
+        to-minute (.minute to-datetime)
+        to-second (.second to-datetime)]
+    (str (pad-zero to-hour) ":" (pad-zero to-minute) ":" (pad-zero to-second))))
 
 ;; Define the initial application state
 (re-frame/reg-event-db       
@@ -114,5 +119,4 @@
     [input-time-view]
     [timezone-dropdown "input"]
     [timezone-dropdown "output"]
-    [output-time-view]
-    [:button "Convert"]])
+    [output-time-view]])
